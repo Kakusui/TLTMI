@@ -1,0 +1,8 @@
+fastapi==0.110.3
+uvicorn==0.30.0
+transformers==4.42.4
+torch==2.3.1
+tf_keras==2.17.0
+sentencepiece==0.2.0
+pydantic==2.8.2
+pydantic-settings==2.3.4
