@@ -167,3 +167,6 @@ cython_debug/
 
 ## vscode
 .vscode
+
+## txt
+*.txt
