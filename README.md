@@ -9,10 +9,10 @@ A proper readme will come later, but for now you can deal with my sarcasm as it'
 ### *Planned* Features
 
 - Dockerized translation service for easy deployment
-- Support for multiple translation models (initially Helsinki-NLP/Opus-MT) (with as many language pairs as possible) (Maybe more powerful models in the future)
+- Support for multiple translation models (Going to stick with Helsinki-NLP/Opus-MT for now)
 - FastAPI-based REST API for translation requests
 - Local processing for enhanced privacy and offline capability
-- Easy Model handling
+- Easy Model handling (discard, get, load, timed discard, etc)
 - More once my brain works
 
 ### Getting Started

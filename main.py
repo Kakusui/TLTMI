@@ -12,14 +12,11 @@ from transformers.pipelines import Pipeline
 
 import uvicorn
 
-
-
 class TranslationRequest(BaseModel):
     text:str
     source_lang:str | None = None
     target_lang:str | None = None
     model:str | None = None
-
 
 class TranslationPipeline:
     source_lang:str | None
@@ -37,7 +34,6 @@ class TranslationPipeline:
             if(not self.model):
                 raise Exception("Either source_lang and target_lang or model must be provided")
         
-
     def load(self):
 
         ## They can pass in a model otherwise language pair will be used
@@ -52,7 +48,7 @@ class TranslationPipeline:
             )
 
         except Exception as e:
-            raise Exception(f"Failed to load pipeline: {str(e)}\nLikely the model {self.model} does not exist, check your language pairs or model name")
+            raise Exception(f"Failed to load pipeline: {str(e)}\nLikely the model {self.model} does not exist, check your language pairs or model name.")
 
     def translate(self, text:str) -> str:
         if(not self.pipeline):
@@ -69,23 +65,34 @@ pipelines:dict[str, TranslationPipeline] = {}
 @app.post("/tltmi/translate")
 async def translate(request:TranslationRequest):
 
-    if(not request.source_lang or not request.target_lang):
-        pipeline_key = request.model
-
-    else:
-        pipeline_key = f"{request.source_lang}-{request.target_lang}"
-
-    assert pipeline_key is not None, "Pipeline key is None"
-    
-    if(pipeline_key not in pipelines):
-        pipelines[pipeline_key] = TranslationPipeline(request.source_lang, request.target_lang, request.model)
-    
     try:
-        translation = pipelines[pipeline_key].translate(request.text)
-        return {"translation": translation}
-    
+
+        if(not request.source_lang or not request.target_lang):
+            pipeline_key = request.model
+
+        else:
+            pipeline_key = f"{request.source_lang}-{request.target_lang}"
+
+        assert pipeline_key is not None, "Pipeline key is None"
+        
+        if(pipeline_key not in pipelines):
+            pipelines[pipeline_key] = TranslationPipeline(request.source_lang, request.target_lang, request.model)
+        
+
+            translation = pipelines[pipeline_key].translate(request.text)
+            return {"translation": translation}
+        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.delete("/tltmi/remove_pipeline/{pipeline_key}")
+async def delete_pipeline(pipeline_key: str):
+    if(pipeline_key in pipelines):
+        del pipelines[pipeline_key]
+        return {"message": f"Pipeline '{pipeline_key}' deleted successfully."}
+    
+    else:
+        raise HTTPException(status_code=404, detail="Pipeline not found")
 
 if(__name__ == "__main__"):
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
