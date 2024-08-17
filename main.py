@@ -191,6 +191,28 @@ async def delete_pipeline(pipeline_key:str):
     
     else:
         return JSONResponse(status_code=404, content={"message": f"Pipeline '{pipeline_key}' does not exist."})
+    
+@app.delete("/tltmi/remove_all_pipelines")
+async def delete_all_pipelines():
+    """Remove all pipelines"""
+    for key in pipeline_manager.pipelines.keys():
+        await pipeline_manager.remove_pipeline(key)
+
+    return JSONResponse(status_code=200, content={"message": "All pipelines removed successfully."})
+
+
+@app.post("/tltmi/restart")
+async def restart():
+    """Restart the application, resetting all state"""
+    global pipeline_manager
+
+    await delete_all_pipelines()
+    
+    pipeline_manager = PipelineManager()
+    
+    asyncio.create_task(pipeline_manager.cleanup_task())
+    
+    return JSONResponse(status_code=200, content={"message": "Application restarted successfully."})
 
 @app.get("/tltmi/list_pipelines")
 async def list_pipelines():

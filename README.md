@@ -1,43 +1,38 @@
 # TLTMI (That Local Translation Model Interface)
 
+## Last version: 0.0.1-alpha
+
 ## A work in progress 
 
 TLTMI is an open-source project aimed at providing an easy-to-deploy, locally-run translation service that can be accessed via a simple url fetch. It combines the power of state-of-the-art machine translation models with the convenience of containerized deployment.
 
-A proper readme will come later, but for now you can deal with my sarcasm as it's 4am and I'm tired.
+Currently TLTMI is focusing on using the Helsinki-NLP/Opus-MT models for translation. These are efficient, memory-light models that can be easily loaded into memory for quick translation.
+
+They are sufficient for most translation tasks, but TLTMI is aiming to be an option for local translation when cost is a concern and proprietary, api-based translation services are not an option.
 
 ### *Planned* Features
 
 - Dockerized translation service for easy deployment
-- Support for multiple translation models (Going to stick with Helsinki-NLP/Opus-MT for now)
+- Support for multiple language pairs
 - FastAPI-based REST API for translation requests
 - Local processing for enhanced privacy and offline capability
-- Easy Model handling (discard, get, load, timed discard, etc)
-- More once my brain works
+- Easy Model handling (discard, get, create, etc)
 
 ### Getting Started
-
-#### Some notes
-
-Memory hungry, be careful which switching language pairs right now (this is just a proof of concept so there's no performance optimization yet).
-
-Every language pair switch loads another model into memory, so if you're running this on a machine with limited memory, be careful or bad things will happen (probably).
-
-I'll fix this in the future, but for now, it's a proof of concept.
 
 #### Prerequisites
 
 - Docker
-- A lack of sanity
-- Time
-- A decent amount of memory (6gb or so, currently just uses whatever memory is available. One model or so is roughly 2gb of memory)
 
-#### Production Setup (If you're insane to do this right now)
+#### Pulling the Docker Image
 
-Pull the Docker image from Docker Hub:
+Pull the Docker image from Docker Hub
+
+[Link](https://hub.docker.com/repository/docker/bikatr7/tltmi-core/general)
+
 
 ``` bash
-docker pull bikatr7/tltmi-core:latest
+docker pull bikatr7/tltmi-core:v0.0.1-alpha
 ```
 or
 
@@ -91,17 +86,40 @@ Clone the repository:
 
 ### Usage
 
-Pretty self-explanatory, just send a POST request to the `/translate` endpoint with a similar looking json payload as below:
+**ALL** endpoints are currently under `/tltmi`
+
+### Some notes
+
+* Model and pipeline are interchangeable in this context
+* Models are created on demand if one does not exist already
+* Models are stored in memory and are not saved to disk
+* Models created by a `model` parameter are separate from those created by `source_lang` and `target_lang` parameters (Meaning if you create the exact same model with `model` and `source_lang` and `target_lang` they will be separate models)
+
+### Translating Text
+
+Pretty self-explanatory, just send a POST request to the `/tltmi/translate` endpoint with a similar looking json payload as below:
 
 ```bash
-curl -X POST "http://localhost:8000/translate" -H "Content-Type: application/json" -d '{"text": "I really fucking hate Japanese!", "source_lang": "en", "target_lang": "jap"}'
+curl -X POST "http://localhost:8000/tltmi/translate" -H "Content-Type: application/json" -d '{"text": "I am really tired today.", "source_lang": "en", "target_lang": "jap"}'
 ```
 
-Note that language codes *currently* are based on the Helsinki-NLP/Opus-MT models which are inconsistent at best.
+Note that language codes *currently* are based on the Helsinki-NLP/Opus-MT models which are inconsistent. TLTMI will try to load whatever you give it and will warn you if it's invalid.
 
-japanese for instance should either be ja or jp right? No Jap for some reason. Have fun, I know I did
+There are thousands of pairs, it is not feasible for TLTMI to keep track of valid ones. This is up to you.
 
-Anyways TLTMI does not do any checking of these and if you're using this at 0.0.1 alpha you have my condolences
+### Pipeline management
+
+`/tltmi/add_pipeline` expects source_lang and target lang OR model, also an optional keep_alive parameter
+
+`tltmi/remove_pipeline/{pipeline_key}` expects a key, removes the existing model.
+
+`/tltmi/remove_all_pipelines` removes all pipelines
+ 
+`/tltmi/list_pipelines` Returns all pipelines
+
+### Admin
+
+`/tltmi/restart` If for some reason you break something but don't want to kill the server, call this.
 
 ### Contributing
 
@@ -121,3 +139,4 @@ Please note that this information is a brief summary of the AGPLv3. For a detail
 
 - This project uses models from the Hugging Face Transformers library.
 - Special thanks to the open-source community for their invaluable contributions to the field of machine translation.
+- Helsinki-NLP/Opus-MT for their amazing work on the models used in this project.
