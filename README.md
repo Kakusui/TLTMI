@@ -1,6 +1,6 @@
 # TLTMI (That Local Translation Model Interface)
 
-## Last version: 0.0.1-alpha
+## Last version: 0.0.1
 
 ## A work in progress 
 
@@ -32,7 +32,7 @@ Pull the Docker image from Docker Hub
 
 
 ``` bash
-docker pull bikatr7/tltmi-core:v0.0.1-alpha
+docker pull bikatr7/tltmi-core:v0.0.1
 ```
 or
 
@@ -43,7 +43,7 @@ docker pull bikatr7/tltmi-core:latest
 then run with
 
 ```bash
-docker run bikatr7/tltmi-core:v0.0.1-alpha
+docker run bikatr7/tltmi-core:v0.0.1
 ```
 
 or
